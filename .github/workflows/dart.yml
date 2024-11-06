@@ -6,45 +6,52 @@ on:
 jobs:
   build-ios:
     name: 🎉 iOS Build
-    runs-on: macos-latest
+    runs-on: macos-latest  # Sử dụng macOS vì build iOS chỉ hỗ trợ trên macOS
+
     steps:
+      # Check out mã nguồn từ repository
       - uses: actions/checkout@v3
 
+      # Cài đặt Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           architecture: x64
+
+      # Cài đặt dependencies Flutter
       - run: flutter pub get
-      
-      - name: Set iOS platform to 14.0
+
+      # Cập nhật Podfile để sử dụng iOS 14
+      - name: Update Podfile for iOS 14
         run: |
-          echo "platform :ios, '14.0'" > ios/Podfile
-          echo "inhibit_all_warnings!" >> ios/Podfile
-          echo "target 'Runner' do" >> ios/Podfile
-          echo "  use_frameworks!" >> ios/Podfile
-          echo "  use_modular_headers!" >> ios/Podfile
-          echo "  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))" >> ios/Podfile
-          echo "end" >> ios/Podfile
-          echo "post_install do |installer|" >> ios/Podfile
-          echo "  installer.pods_project.targets.each do |target|" >> ios/Podfile
-          echo "    flutter_additional_ios_build_settings(target)" >> ios/Podfile
-          echo "  end" >> ios/Podfile
-          echo "end" >> ios/Podfile
+          sed -i '' 's/platform :ios, '12.0'/platform :ios, '14.0'/g' ios/Podfile
+          cat ios/Podfile
+
+      # Cập nhật repository Pods
       - run: pod repo update
         working-directory: ios
 
+      # Cài đặt Pods
+      - run: pod install
+        working-directory: ios
+
+      # Build iOS app
       - run: flutter build ios --release --no-codesign
 
+      # Tạo thư mục Payload
       - run: mkdir Payload
         working-directory: build/ios/iphoneos
 
+      # Di chuyển app vào thư mục Payload
       - run: mv Runner.app/ Payload
         working-directory: build/ios/iphoneos
 
+      # Nén output thành .ipa
       - name: Zip output
         run: zip -qq -r -9 FlutterIpaExport.ipa Payload
         working-directory: build/ios/iphoneos
 
+      # Tải lên bản phát hành
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
