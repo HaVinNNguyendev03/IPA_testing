@@ -21,10 +21,13 @@ jobs:
       # Cài đặt dependencies Flutter
       - run: flutter pub get
 
-      # Cập nhật Podfile để sử dụng iOS 14
-      - name: Update Podfile for iOS 14
+      # Cập nhật Podfile để sử dụng iOS 12 và Firebase cũ hơn nếu cần
+      - name: Update Podfile for iOS 12 and Firebase Auth
         run: |
-          sed -i '' 's/platform :ios, '12.0'/platform :ios, '14.0'/g' ios/Podfile
+          # Sửa Podfile để sử dụng iOS 12 và hạ xuống Firebase phiên bản cũ hơn nếu cần
+          sed -i '' 's/platform :ios, '14.0'/platform :ios, '12.0'/g' ios/Podfile
+          # Đảm bảo firebase_auth sử dụng phiên bản cũ hơn (ví dụ 6.0.0)
+          echo "pod 'firebase_auth', '~> 6.0'" >> ios/Podfile
           cat ios/Podfile
 
       # Cập nhật repository Pods
