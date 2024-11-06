@@ -1,23 +1,2 @@
 platform :ios, '13.0'  # Đặt yêu cầu phiên bản iOS tối thiểu 
 
-# Thêm cấu hình cho các plugin Flutter
-use_frameworks!  # Nếu bạn muốn dùng các frameworks thay vì static libraries
-
-# Đảm bảo rằng bạn đang sử dụng các pods của Flutter
-flutter_application_path = File.join(File.dirname(`flutter --flutter-root`), '..')
-load File.join(flutter_application_path, 'packages', 'flutter_tools', 'bin', 'podhelper.rb')
-
-
-target 'Runner' do
-  use_flutter_ios_podfile!  # Tải tất cả các pod Flutter
-
-  # Thêm các pod nếu cần, ví dụ Firebase
-  pod 'Firebase/Auth'
-  pod 'Firebase/Core'
-
-  # Nếu có các plugin Flutter khác cần cài đặt qua CocoaPods
-  # pod 'SomePlugin'
-
-  # Thêm các cấu hình khác nếu cần (ví dụ: các cấu hình cho các pod cụ thể)
-  # pod 'OtherPod'
-end
