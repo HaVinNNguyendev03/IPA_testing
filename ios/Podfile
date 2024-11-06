@@ -1,2 +1,0 @@
-platform :ios, '13.0'  # Đặt yêu cầu phiên bản iOS tối thiểu 
-
