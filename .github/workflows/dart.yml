@@ -6,55 +6,32 @@ on:
 jobs:
   build-ios:
     name: 🎉 iOS Build
-    runs-on: macos-latest  # Sử dụng macOS vì build iOS chỉ hỗ trợ trên macOS
-
+    runs-on: macos-latest
     steps:
-      # Check out mã nguồn từ repository
       - uses: actions/checkout@v3
 
-      # Cài đặt Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           architecture: x64
-
-      # Cài đặt dependencies Flutter
       - run: flutter pub get
+      
 
-      # Cập nhật Podfile để sử dụng iOS 12 và Firebase cũ hơn nếu cần
-      - name: Update Podfile for iOS 12 and Firebase Auth
-        run: |
-          # Sửa Podfile để sử dụng iOS 12 và hạ xuống Firebase phiên bản cũ hơn nếu cần
-          sed -i '' 's/platform :ios, '14.0'/platform :ios, '12.0'/g' ios/Podfile
-          # Đảm bảo firebase_auth sử dụng phiên bản cũ hơn (ví dụ 6.0.0)
-          echo "pod 'firebase_auth', '~> 6.0'" >> ios/Podfile
-          cat ios/Podfile
-
-      # Cập nhật repository Pods
       - run: pod repo update
         working-directory: ios
 
-      # Cài đặt Pods
-      - run: pod install
-        working-directory: ios
-
-      # Build iOS app
       - run: flutter build ios --release --no-codesign
 
-      # Tạo thư mục Payload
       - run: mkdir Payload
         working-directory: build/ios/iphoneos
 
-      # Di chuyển app vào thư mục Payload
       - run: mv Runner.app/ Payload
         working-directory: build/ios/iphoneos
 
-      # Nén output thành .ipa
       - name: Zip output
         run: zip -qq -r -9 FlutterIpaExport.ipa Payload
         working-directory: build/ios/iphoneos
 
-      # Tải lên bản phát hành
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
